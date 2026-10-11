@@ -1,11 +1,48 @@
-<div align="center">
+# FishData-TW 台灣智慧漁業開放資料與決策分析平台
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+> **2026 臺灣海洋黑客松競賽專案（以基隆為示範場域）**  
+> Visual Theme: Persona 5 / P5X (Phantom X Protocol)
 
-  <h1>Built with AI Studio</h2>
+---
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## 專案緣起與核心痛點
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+基隆崁仔頂漁市是北台灣規模最大、歷史最悠久的夜間現流漁獲批發集散地。然而，傳統沿近海產銷體系長期面臨三大結構性痛點：
+1. **民間魚種俗名與官方代碼嚴重斷層**：南北稱呼歧異（如北部稱「肥帶」、南部稱「油帶」；北部稱「透抽」、南部稱「中卷」），政府開放資料中異體名稱不一致率達 14.6%，導致產銷大數據難以自動化勾稽。
+2. **海象劇烈引發高頻價格波動**：北部北方三島海域受東北季風影響劇烈，出海天數波動導致拍賣市場常出現單日暴漲或大卸魚爆量，缺乏統計學異常預警（Rolling Z-Score）。
+3. **海上捕撈與陸上批發缺乏數據閉環**：過去漁船航跡遙測（AIS）與陸上魚市場拍賣批發各自獨立，無法即時連結「出海捕撈 ➔ 夜間靠港八斗子 ➔ 崁仔頂清晨批發拍賣」的供需聯動。
 
-</div>
+---
+
+## 系統四大核心模組
+
+### 01. 即時行情與市場雷達 (`MARKET RADAR`)
+- **北部主力經濟魚種**：白帶魚、鎖管 (透抽)、花腹鯖、黃雞魚、鬼頭刀、赤鯮、刺鯧 (肉魚)、黑鯛、藍圓鰺、馬加鰆。
+- **跨市場冷鏈套利價差分析 (Arbitrage Spread)**：以基隆崁仔頂為消費地錨點，即時比對南方澳、前鎮、東港、澎湖、台中之拍賣均價與溢價率。
+- **統計異常檢測 (Rolling Z-Score)**：計算 14 天滾動均值與標準差，標定 $|Z| \ge 2.5\sigma$ 之異常波動。
+- **基隆上中下價區間帶 (Band Chart)**：呈現頂級鮮貨、成交均價與次級加工魚之區間走勢。
+- **AI 產銷決策智庫**：整合 Gemini 2.5 Flash 提供黑客松評審問答防禦策略、成因剖析與 SDG 14 永續指南。
+
+### 02. 資料工程與品質實驗室 (`ETL QUALITY LAB`)
+- **四階層異體俗名對齊演算法**：精確比對 $\to$ 規格前綴解析 $\to$ 子詞幹模糊比對 $\to$ 未收錄防失真隔離，匹配 F1-Score 達 99.0%。
+- **E1 ~ E4 實驗成果基準**：完整量化資料清洗有效性、別名映射精度、跨市場適配器複用率（94%）及增量同步頻寬開銷降低（96.8%）。
+- **零信任架構 (Zero-Trust)**：伺服器端白名單嚴格校驗市場代碼、魚種 ID 與 ISO-8601 日期格式。
+
+### 03. 宏微觀生產量產值分析 (`MACRO CROSS-SCALE`)
+- **跨尺度數據勾稽**：整合農業部 CF0110（漁業生產量）、CF0120（漁業生產值）與 114 年漁業統計年報。
+- **學術分析防錯**：釐清「批發市場交易量 $\neq$ 當地生產量」與「拍賣批發價 $\neq$ 漁民產地實收價」的中間運銷耗損與冷鏈機制。
+- **全台區漁會組織網絡 (G74)**：基隆區漁會、蘇澳區漁會、高雄區漁會等基層組織數據。
+
+### 04. GFW 漁船遙測與卸魚雷達 (`VESSEL TELEMETRY`)
+- **Python / Node 雙引擎**：Express 透過子行程調用 `python3 main.py`，支援查詢 Global Fishing Watch AIS 遙測事件。
+- **產銷閉環聯動**：偵測漁船於北方三島海域捕撈後，深夜 03:20 靠泊基隆八斗子漁港，載運現流直送崁仔頂批發市場，並支援一鍵跳轉市場雷達比對當日行情。
+
+---
+
+## 技術堆疊
+
+- **Frontend**: React 19, TypeScript, Tailwind CSS, Lucide Icons, Vite
+- **Backend**: Node.js, Express, tsx, Python 3.10
+- **AI Engine**: Google Gemini 2.5 Flash (`@google/genai`)
+- **Telemetry**: Global Fishing Watch (GFW) API v3 / `main.py`
+- **Data Standards**: 農業部水產品交易行情規格、FAO 三字碼 (ASFIS)、ISO 8601
